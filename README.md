@@ -8,7 +8,7 @@ A Flask project that uses CRUD operations to manage a hypothetical inventory sys
 4. Run `pip install -e .`
 6. Run `flask --app project_1 run`
 ## Start Project
-Run `flask run`
+Run `flask --app project_1 run`
 ## Additional Notes
-- When adding new requirements to the project, make sure to run `pip freeze > requirements.txt` in the base folder so that everyone else can get them too.
+- When adding new requirements to the project, make sure they are added to the `pyproject.toml` dependencies variable.
 - On Windows you may have restrictions on running scripts such as virtual environments, to get around this you can run `Set-ExecutionPolicy Unrestricted`.
