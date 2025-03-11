@@ -1,0 +1,11 @@
+[project]
+name = "project-1"
+dependencies = [
+    "flask",
+]
+dynamic = ["version"]
+description="A Flask project that uses CRUD operations to manage a hypothetical inventory system"
+
+[build-system]
+requires = ["flit_core<4"]
+build-backend = "flit_core.buildapi"
