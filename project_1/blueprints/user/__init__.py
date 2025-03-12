@@ -47,7 +47,7 @@ def login():
 
     token = jwt.encode({
             'username': username,
-            'exp' : datetime.now(timezone.utc) + timedelta(minutes = 30)
+            'exp' : datetime.now(timezone.utc) + timedelta(minutes=30)
         }, current_app.config['SECRET_KEY'])
     session['user'] = username
     return jsonify({'message': 'Login successful', 'token':token}), 201

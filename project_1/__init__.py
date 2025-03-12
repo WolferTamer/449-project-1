@@ -1,5 +1,6 @@
-from flask import Flask, jsonify, wrappers, request
+from flask import Flask, jsonify, wrappers, request, session
 from functools import wraps
+from datetime import datetime, timezone
 app = Flask(__name__) 
 __version__ = "0.0.1"
 import jwt
@@ -27,15 +28,18 @@ def token_required(f):
         try:
             # decoding the payload to fetch the stored details
             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
-            print(data)
-            if data['username'] in users:
+            if data['username'] in users and session['user'] == data['username']:
                 current_user = data['username']
             else:
                 return jsonify({
                     'error' : 'Token is invalid'
                 }), 401
+        except jwt.ExpiredSignatureError:
+            session.pop('user', None)
+            return jsonify({
+                'error':'Token is expired'
+            }), 401
         except:
-            print("dead")
             return jsonify({
                 'error' : 'Token is invalid'
             }), 401
