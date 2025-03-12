@@ -1,5 +1,8 @@
-from flask import Blueprint, request, jsonify, session
+from flask import Blueprint, request, jsonify, session, current_app
 from project_1 import users
+import jwt
+import datetime
+from datetime import datetime, timedelta, timezone
 import re
 
 user = Blueprint('users', __name__)
@@ -41,9 +44,13 @@ def login():
     
     if not users.get(username) or users.get(username).get('password') != password:
         return jsonify({'error': 'Invalid credentials'}), 401
-    
+
+    token = jwt.encode({
+            'username': username,
+            'exp' : datetime.now(timezone.utc) + timedelta(minutes = 30)
+        }, current_app.config['SECRET_KEY'])
     session['user'] = username
-    return jsonify({'message': 'Login successful'}), 200
+    return jsonify({'message': 'Login successful', 'token':token}), 201
 
 @user.route('/logout', methods=['POST'])
 def logout():

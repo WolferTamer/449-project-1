@@ -2,6 +2,7 @@
 name = "project-1"
 dependencies = [
     "flask",
+    "PyJWT",
 ]
 dynamic = ["version"]
 description="A Flask project that uses CRUD operations to manage a hypothetical inventory system"
