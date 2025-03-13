@@ -1,11 +1,12 @@
 from flask import Flask, jsonify, wrappers, request, session
 from functools import wraps
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 app = Flask(__name__) 
 __version__ = "0.0.1"
 import jwt
 
 import secrets
+app.permanent_session_lifetime = timedelta(minutes=30)
 app.config['SECRET_KEY'] = secrets.token_urlsafe(16)
 
 users = {"coolguy":{'email':'coolguy@gmail.com','password':'coolp@ssword'}}

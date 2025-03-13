@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, session, current_app
-from project_1 import users
+from project_1 import users, token_required
 import jwt
 import datetime
 from datetime import datetime, timedelta, timezone
@@ -56,3 +56,14 @@ def login():
 def logout():
     session.pop('user', None)
     return jsonify({'message': 'Logout successful'}), 200
+
+@user.route('/refresh',methods=['GET'])
+@token_required
+def refresh(current_user):
+    session.modified = True
+    token = jwt.encode({
+            'username': current_user,
+            'exp' : datetime.now(timezone.utc) + timedelta(minutes=30)
+        }, current_app.config['SECRET_KEY'])
+    return jsonify({'message': 'Token Refreshed', 'token':token}), 201
+    
