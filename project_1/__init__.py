@@ -21,12 +21,12 @@ app.config['SECRET_KEY'] = secrets.token_urlsafe(16)
 # username: {'email':'email_value', 'password':'password_value'}
 users = {"coolguy":{'email':'coolguy@gmail.com','password':'coolp@ssword'}}
 
-# TODO:
-# Create an inventory object for storing inventory information.
-# Each inventory object must be associated with a username
-# Other values TBD
+
+locations = {"coolguy":[{"location_id":1,"name":"Cool Plaza Store","address":"5555 Cool Guy St",
+                          "state":"CA", "zip":92222, "capacity":1000}]}
+
 inventory = {
-    "coolguy":[{"id": 1, "location_id": 714, "name": "Kevin", "quantity": 781, "price": 49.99, "description": "nice pair of glasses", 
+    "coolguy":[{"id": 1, "location_id": 1, "name": "Kevin", "quantity": 781, "price": 49.99, "description": "nice pair of glasses", 
      "prescription_avail": False, "tinted": False, "polarized": False, "width": 6.2, "anti_glare": False}]
 }
 
@@ -107,12 +107,28 @@ def create_glasses(current_user):
     if not request.json or not all(field in request.json for field in required_fields):
         return jsonify({'error': 'All fields are required: location_id, name, quantity, price, description, prescription_avail, tinted, polarized, width, anti_glare'}), 400
     
+    
+
     if not isinstance(request.json['location_id'], int):
         return jsonify({'error': 'location_id must be an int'}), 400
+    potential_loc = None
+    for location in locations[current_user]:
+        if location["location_id"] == request.json['location_id']:
+            potential_loc = location
+    if potential_loc == None:
+        return jsonify({'error': 'location_id must references a valid location'}), 400
+
     if not isinstance(request.json['name'], str):
         return jsonify({'error': 'name must be a string'}), 400
     if not isinstance(request.json['quantity'], int):
         return jsonify({'error': 'quantity must be an int'}), 400
+    total = request.json['quantity']
+    for g in inventory[current_user]:
+        if g["location_id"] == request.json['location_id']:
+            total+=g["quantity"]
+    if total > potential_loc["capacity"]:
+        return jsonify({'error': 'Exceeded location capacity'}), 400
+    
     if not isinstance(request.json['price'], float):
         return jsonify({'error': 'price must be a float'}), 400
     if not isinstance(request.json['description'], str):
@@ -177,16 +193,33 @@ def update_glasses(current_user,glasses_id):
     if 'anti_glare' in request.json and not isinstance(request.json['anti_glare'], bool):
         return jsonify({'error': 'anti_glare must be a bool'})
     
+    
+    glasses_copy = glasses.copy()
+    glasses_copy.update(request.json)
+    potential_loc = None
+    for location in locations[current_user]:
+        if location["location_id"] == glasses_copy['location_id']:
+            potential_loc = location
+    
+    total = glasses_copy['quantity']
+    for g in inventory[current_user]:
+        if g["location_id"] == glasses_copy['location_id']:
+            total+=g["quantity"]
+    if total > potential_loc["capacity"]:
+        return jsonify({'error': 'Exceeded location capacity'}), 400
+
+
     glasses.update(request.json)
     return jsonify(glasses)
 
 # Route to DELETE a student by ID
 @app.route('/inventory/<int:glasses_id>', methods=['DELETE'])
+@token_required
 def delete_glasses(current_user,glasses_id):
     glasses = find_glasses(glasses_id, current_user)
     if glasses is None:
         return jsonify({'error': 'Glasses not found'}), 404
-    inventory.remove(glasses)
+    inventory[current_user].remove(glasses)
     return jsonify({'message': 'Glasses deletion successful'}), 200
     
 
