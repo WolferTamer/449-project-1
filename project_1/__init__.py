@@ -19,15 +19,29 @@ app.config['SECRET_KEY'] = secrets.token_urlsafe(16)
 # user object used to store data. Can be imported into other files. 
 # FORMAT:
 # username: {'email':'email_value', 'password':'password_value'}
-users = {"coolguy":{'email':'coolguy@gmail.com','password':'coolp@ssword'}}
+users = {"coolguy":{'email':'coolguy@gmail.com','password':'coolp@ssword'},
+         "calebc":{'email':'calebc@gmail.com','password':'#password5'}}
 
 
 locations = {"coolguy":[{"location_id":1,"name":"Cool Plaza Store","address":"5555 Cool Guy St",
-                          "state":"CA", "zip":92222, "capacity":1000}]}
+                          "state":"CA", "zip":92222, "capacity":1000},
+                        {"location_id":3,"name":"Overflow Location","address":"1234 Factory St",
+                          "state":"CA", "zip":91234, "capacity":5000}],
+            "calebc":[{"location_id":2,"name":"Caleb's Glasses Store","address":"987 Store Rd",
+                          "state":"AZ", "zip":81356, "capacity":1500}]}
+
 
 inventory = {
-    "coolguy":[{"id": 1, "location_id": 1, "name": "Kevin", "quantity": 781, "price": 49.99, "description": "nice pair of glasses", 
-     "prescription_avail": False, "tinted": False, "polarized": False, "width": 6.2, "anti_glare": False}]
+    "coolguy":[
+        {"id": 1, "location_id": 1, "name": "Kevin", "quantity": 781, "price": 49.99, "description": "nice pair of glasses", 
+            "prescription_avail": False, "tinted": False, "polarized": False, "width": 6.2, "anti_glare": False},
+        {"id": 3, "location_id": 3, "name": "Bob", "quantity": 1225, "price": 34.99, "description": "Cheap glasses", 
+            "prescription_avail": True, "tinted": False, "polarized": False, "width": 5.8, "anti_glare": True}
+    ],
+    "calebc":[ 
+        {"id":2,"location_id":2,"name":"Custom Sunglasses","quantity":824,"price":64.99,"description":"cool custom sunglasses",
+               "prescription_avail": False, "tinted": True, "polarized": True, "width":6.3, "anti-glare": False}
+    ]
 }
 
 # Helper function to find glasses by ID
@@ -87,7 +101,7 @@ def token_required(f):
 @token_required
 def get_inventory(current_user):
     if inventory[current_user] != None:
-        return jsonify(inventory)
+        return jsonify(inventory[current_user])
     else:
         return "No Inventory", 404
 

@@ -92,8 +92,6 @@ def delete_location(current_user,location_id):
     place = find_location(location_id, current_user)
     if place is None:
         return jsonify({'error': 'Location not found'}), 404
-    for glasses in inventory[current_user]:
-        if glasses["location_id"] == location_id:
-            inventory[current_user].remove(glasses)
+    inventory[current_user] = [x for x in inventory[current_user] if not x["location_id"] == location_id]
     locations[current_user].remove(place)
     return jsonify({'message': 'Location deletion successful'}), 200
