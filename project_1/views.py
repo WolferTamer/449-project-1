@@ -2,6 +2,7 @@
 from project_1 import app
 from project_1.blueprints.user import user
 from project_1.blueprints.test_blueprint import test_blueprint
+from project_1.blueprints.location import location
 
 @app.route('/')
 def index():
@@ -12,3 +13,4 @@ def index():
 # so we don't have to manually add each one.
 app.register_blueprint(user, url_prefix='/')
 app.register_blueprint(test_blueprint,url_prefix='/test')
+app.register_blueprint(location,url_prefix='/location')
