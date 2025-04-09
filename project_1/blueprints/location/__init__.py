@@ -8,8 +8,8 @@ import re
 location = Blueprint('location', __name__)
 
 def find_location(location_id, user):
-    if locations[user] != None:
-        for place in locations[user]:
+    if user in locations:
+        for place in locations:
             if place["location_id"] == location_id:
                 return place
     return None
@@ -19,7 +19,7 @@ def find_location(location_id, user):
 @location.route('/', methods=['GET'])
 @token_required
 def get_locations(current_user):
-    if locations[current_user] == None:
+    if current_user in locations:
         return jsonify({"error":"No Locations For This User"}), 404
     return jsonify(locations[current_user])
 
@@ -50,7 +50,7 @@ def create_location(current_user):
     if not isinstance(request.json['state'], str) or len(request.json['state']) != 2:
         return jsonify({'error': 'state must be a string of 2 characters'}), 400
     
-    loc_id = max(max(place['location_id'] for place in person) for person in locations.values()) + 1 if locations else 1
+    loc_id = max((max((place['location_id'] for place in person), default=1) for person in locations.values()), default=1) + 1 if locations else 1
     new_location = {
         'location_id': loc_id,
         'name': request.json['name'],

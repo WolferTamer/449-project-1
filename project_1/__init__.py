@@ -46,7 +46,7 @@ inventory = {
 
 # Helper function to find glasses by ID
 def find_glasses(glasses_id, user):
-    if inventory[user] != None:
+    if user in inventory:
         for glasses in inventory[user]:
             if glasses["id"] == glasses_id:
                 return glasses
@@ -100,7 +100,7 @@ def token_required(f):
 @app.route('/inventory', methods=['GET'])
 @token_required
 def get_inventory(current_user):
-    if inventory[current_user] != None:
+    if current_user in inventory:
         return jsonify(inventory[current_user])
     else:
         return "No Inventory", 404
@@ -126,9 +126,10 @@ def create_glasses(current_user):
     if not isinstance(request.json['location_id'], int):
         return jsonify({'error': 'location_id must be an int'}), 400
     potential_loc = None
-    for location in locations[current_user]:
-        if location["location_id"] == request.json['location_id']:
-            potential_loc = location
+    if current_user in locations:
+        for location in locations[current_user]:
+            if location["location_id"] == request.json['location_id']:
+                potential_loc = location
     if potential_loc == None:
         return jsonify({'error': 'location_id must references a valid location'}), 400
 
@@ -158,7 +159,7 @@ def create_glasses(current_user):
     if not isinstance(request.json['anti_glare'], bool):
         return jsonify({'error': 'anti_glare must be a bool'}), 400
     
-    glasses_id = max(max(glass['id'] for glass in glasses) for glasses in inventory.values()) + 1 if inventory else 1
+    glasses_id = max((max((glass['id'] for glass in glasses),default=1) for glasses in inventory.values()),default=1) + 1 if inventory else 1
     glasses = {
         'id': glasses_id,
         'location_id': request.json['location_id'],

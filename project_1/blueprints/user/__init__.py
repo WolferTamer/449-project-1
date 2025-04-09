@@ -1,6 +1,6 @@
 # file dedicated to all routes involving user authorization and authentication
 from flask import Blueprint, request, jsonify, session, current_app, make_response
-from project_1 import users, token_required
+from project_1 import users, token_required, inventory, locations
 import jwt
 import datetime
 from datetime import datetime, timedelta, timezone
@@ -40,6 +40,8 @@ def register():
     
     # add the new user to the object
     users[username] = {'email': email, 'password': password}
+    inventory[username] = []
+    locations[username] = []
     return jsonify({'message':'User successfully created'}), 201
 
 # login route. Only requires 'username' and 'password'. username may be switched out for email later on
