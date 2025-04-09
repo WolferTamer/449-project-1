@@ -10,6 +10,11 @@ import re
 # register to the main app. if you need to access the main app object, use current_app.
 user = Blueprint('users', __name__)
 
+# Validate email format using a regular expression
+def validate_email(email):  
+    email_regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'  # Regex pattern for valid email
+    return re.match(email_regex, email)  # Return a match object if the email matches the pattern, otherwise None
+
 # POST route for creating a new user. the body requires 'email', 'username', and 'password'
 # 'password' requires at least 8 characters and a special character.
 @user.route('/register', methods=['POST'])
@@ -24,6 +29,8 @@ def register():
 
     # check validity of all values
     # TODO: add check for email validity (xxx@yyy.zzz)
+    if not validate_email(email):
+        return jsonify({'error': 'Invalid email'})
     if not isinstance(username, str):
         return jsonify({'error':'Username must be a string'}), 400
     if not isinstance(password, str) or len(password) < 8 or not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
