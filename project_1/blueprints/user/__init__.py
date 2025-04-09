@@ -1,5 +1,5 @@
 # file dedicated to all routes involving user authorization and authentication
-from flask import Blueprint, request, jsonify, session, current_app
+from flask import Blueprint, request, jsonify, session, current_app, make_response
 from project_1 import users, token_required
 import jwt
 import datetime
@@ -70,7 +70,9 @@ def login():
     
     #start session
     session['user'] = username
-    return jsonify({'message': 'Login successful', 'token':token}), 201
+    resp = make_response(jsonify({'message': 'Login successful', 'token':token}))
+    resp.set_cookie('jwt',value=token)
+    return resp, 201
 
 # No credentials required. Just pops the associated session.,
 @user.route('/logout', methods=['POST'])
@@ -88,5 +90,7 @@ def refresh(current_user):
             'username': current_user,
             'exp' : datetime.now(timezone.utc) + timedelta(minutes=30)
         }, current_app.config['SECRET_KEY'])
-    return jsonify({'message': 'Token Refreshed', 'token':token}), 201
+    resp = make_response(jsonify({'message': 'Token Refreshed', 'token':token}))
+    resp.set_cookie('jwt',value=token)
+    return resp, 201
     
