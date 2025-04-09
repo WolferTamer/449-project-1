@@ -9,7 +9,7 @@ location = Blueprint('location', __name__)
 
 def find_location(location_id, user):
     if user in locations:
-        for place in locations:
+        for place in locations[user]:
             if place["location_id"] == location_id:
                 return place
     return None
@@ -19,7 +19,7 @@ def find_location(location_id, user):
 @location.route('/', methods=['GET'])
 @token_required
 def get_locations(current_user):
-    if current_user in locations:
+    if not current_user in locations:
         return jsonify({"error":"No Locations For This User"}), 404
     return jsonify(locations[current_user])
 
